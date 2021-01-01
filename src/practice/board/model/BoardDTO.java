@@ -15,6 +15,15 @@ public class BoardDTO {
 	private Integer ref;
 	private Integer re_step;
 	private Integer re_level;
+	// 파일 주소도 dto에 만들어야 하나?
+	private String img;
+	
+	public String getImg() {
+		return img;
+	}
+	public void setImg(String img) {
+		this.img = img;
+	}
 	public Integer getNum() {
 		return num;
 	}
