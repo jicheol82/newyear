@@ -25,7 +25,7 @@
 	// https://gunbin91.github.io/jsp/2019/05/28/jsp_11_file.html
 	
 	// MultipartRequest 객체 만들기 전 매개변수 선언
-	String path = request.getRealPath("files");
+	String path = request.getRealPath("files/");	//폴더명 뒤에 / 필요
 	int max = 1024*1024*5;
 	String enc = "utf-8";
 	DefaultFileRenamePolicy dp = new DefaultFileRenamePolicy();
@@ -58,21 +58,17 @@
 					try{
 						methods[i].invoke(dto, mr.getParameter(val));
 					}catch(Exception e){e.printStackTrace();}
-					finally{
-						break;
-					}
+					finally{break;}
 				}
 			}
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
-	/* MultipartRequest객체에서 name과 value의 확인
-	for(int i=0; i<paraNameList.size(); i++){
-		System.out.println(paraNameList.get(i)+" : "+paraValueList.get(i));
-	}
-	*/
-	//dao.uploadContent(dao);
+	// 첨부파일은 getParameter로 안가져와짐
+	dto.setImg(mr.getFilesystemName("attach"));
+	BoardDAO dao = BoardDAO.getInstance();
+	dao.uploadContent(dto);	
 %>
 <%-- 
 <jsp:useBean id="dto" class="practice.board.model.BoardDTO"/>
