@@ -32,10 +32,11 @@ BUTTON {
 h4 {
 	COLOR: #AAB9BD;
 }
-.char{
+.pageNums{
 	FONT-SIZE: 9pt; COLOR: #77878F; LINE-HEIGHT: 160%; FONT-FAMILY: 맑은 고딕,verdana,tahoma; 
 	text-decoration: none;
 }
+
 
 
 A:link:not(.pageNums) {text-decoration:none;color:#E1E8E7}

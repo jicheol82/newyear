@@ -28,6 +28,22 @@ public class BoardDAO {
 		if(pstmt!=null) try {pstmt.close();} catch(Exception e) {e.printStackTrace();}
 		if(conn!=null) try {conn.close();} catch(Exception e) {e.printStackTrace();}
 	}
+	// 총 record 갯수 반환 메서드
+	public int countRecords() {
+		int result=100;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			conn = getConnection();
+			String sql = "select max(num) from board";
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery(); 
+			if(rs.next()) {result = rs.getInt(1);} // 아무 레코드가 없어도 여기서 rs는 null이 아니다.
+		}catch(Exception e) {e.printStackTrace();}
+		finally {close(conn, pstmt, rs);}
+		return result;
+	}
 	
 	// writePro에서 생성된 게시글을 db에 저장
 	// db에 첫글일때, 새글작성일때, 댓글일때
@@ -47,12 +63,10 @@ public class BoardDAO {
 			rs = pstmt.executeQuery();
 			int num, ref, re_step, re_level;
 			int readcount = 0;	//처음 생성된(첫글/새글/댓글이든) 글은 당연히 조회수 0
-			System.out.println(rs.next()); // max값이 null이어도 rs.next()는 true로 나오므로 한번 소비
+			rs.next(); // max값이 null이어도 rs.next()는 true로 나오므로 한번 소비
 			if(rs.getInt(1)>0) {	// 새글 또는 댓글
 				num = rs.getInt(1)+1; 
-				System.out.println(rs.getInt(1));
 				if(dto.getRef()==null) { //새글일때
-					System.out.println("새글");
 					ref = num;	// 새글일때는 ref와 Num은 일치
 					re_step = 0;
 					re_level = 0;
@@ -85,23 +99,24 @@ public class BoardDAO {
 		finally {close(conn, pstmt, rs);}
 		return result;
 	}
-	// board의 모든 글을 불러온다.
+	// board의 주어진 범위 사이의 글을 불러온다.
 	// List에 dto형으로 반환
 	// 정렬순서 ref열의 내림차순, ref가 동일할 시 step의 내림차수 
-	public List callAllRecords() {
+	public List callRecords(int startNum, int endNum) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		
 		List records = new ArrayList();
 		BoardDTO dto = null;
-		int count = 0;
 		
 		try {
 			conn = getConnection();
 			// 정렬 sql
-			String sql = "select * from board order by ref desc, re_step desc";
+			String sql = "select * from board where ? >= num and num >= ? order by ref desc, re_step desc";
 			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, startNum);
+			pstmt.setInt(2, endNum);
 			rs = pstmt.executeQuery();
 			while(rs.next()) {
 				if(rs.getInt("num")>0) {
@@ -119,7 +134,6 @@ public class BoardDAO {
 					dto.setRe_level(rs.getInt("re_level"));
 					dto.setImg(rs.getString("img"));
 					records.add(dto);
-					count++;
 				}
 			}
 		}catch(Exception e) {
@@ -127,7 +141,6 @@ public class BoardDAO {
 		}finally {
 			close(conn, pstmt, rs);
 		}
-		records.add(count);	// 총 글 갯수를 showList의 마지막에 반환
 		return records;
 	}
 }

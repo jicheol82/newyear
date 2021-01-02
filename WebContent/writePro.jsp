@@ -70,6 +70,7 @@
 	dto.setImg(mr.getFilesystemName("attach"));
 	BoardDAO dao = BoardDAO.getInstance();
 	dao.uploadContent(dto);	
+	response.sendRedirect("main.jsp");
 %>
 <%-- 
 <jsp:useBean id="dto" class="practice.board.model.BoardDTO"/>

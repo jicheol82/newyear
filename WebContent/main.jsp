@@ -14,11 +14,17 @@
 </head>
 <%
 	// 변수 선언부
-	int numOfList = 10;
-	int numOfPage = 5;
+	int numOfList = 3;	// 한페이지에 보여줄 글 갯수
+	int numOfPage = 2;	// 한번에 표시할 페이지의 겟수
 	BoardDAO dao = BoardDAO.getInstance();
-	List records = dao.callAllRecords(); //실제 게시글 수 보다 1개 더 많음(총 개시글 수가 last에 추가됨)
-	int numOfRecords = (int)records.remove(records.size()-1);	// records 마지막에 있는 총 게시글 수를 빼온다.
+	int numOfRecords = dao.countRecords();	// board DB에 있는 총 글의 갯수
+	int allPages = numOfRecords / numOfList + (numOfRecords % numOfList > 0 ? 1 : 0);	// 총 글의 갯수/한페이지에 보여줄 글의 갯수가 나누어 떨어지지 않으면 +1
+	int pageNum = request.getParameter("pageNum")!=null ? Integer.parseInt(request.getParameter("pageNum")) : 1;	// 현재 페이지의 번호(null이면 1)
+	int startNum = numOfRecords - (numOfList*(pageNum-1));	// 한페이제 보여줄 시작글 번호
+	int endNum = (startNum - numOfList + 1)>0 ? (startNum - numOfList + 1) : 1;	// 한페이제 보여줄 마지막글의 번호(마지막 글 번호가 음수면 1)
+	int startPageNum = ((pageNum-1)/numOfPage)*numOfPage+1;	// 현재 페이지가 있는 페이지 그룹의 처음 페이지 번호
+	int endPageNum = ((allPages % pageNum) < numOfPage) ? (allPages) : (startPageNum + numOfPage -1);	// 현재 페이지 번호가 마지막쪽에 위치 하지 않으면 startPageNum + numOfPage
+	List records = dao.callRecords(startNum, endNum); 
 	
 	// 리스트에 표시될 게시물의 시간 양식
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
@@ -27,32 +33,72 @@
 	<h1 align="center">Main</h1>
 	<div>
 		<table>
-			<tr><td colspan="5" align="right">로그인/회원가입<br />로그아웃/내계정 </td></tr>
+			<tr>
+				<td><button onclick="location='write.jsp'">글쓰기</button></td>
+				<td colspan="4" align="right">로그인/회원가입<br />로그아웃/내계정 </td>
+			</tr>
 			<tr>
 				<td>글번호</td><td>작성자</td><td>제목</td><td>조회수</td><td>작성일</td>
 			</tr>
 <%
-			if(numOfRecords>0){
+			if(numOfRecords>0){	// board내에 게시글이 있는경우
 				// iterator를 이용하여 records에서 객체 꺼내오기
-				for(Iterator<BoardDTO> itr = records.iterator();itr.hasNext();numOfRecords--){
+				for(Iterator<BoardDTO> itr = records.iterator();itr.hasNext();startNum--){
 					BoardDTO dto = itr.next();
 %>				
 					<tr>
-						<td><%=numOfRecords%></td>
-						<td><%=dto.getWriter()%></td>
-						<td><%=dto.getSubject()%></td>
+						<td><%=startNum%></td>
+						<td><a href="mailto:<%=dto.getEmail()%>"><%=dto.getWriter()%></a></td>
+						<td><a href="view.jsp?num=<%=dto.getNum()%>" ><%=dto.getSubject()%></a></td>
 						<td><%=dto.getReadcount()%></td>
 						<td><%=sdf.format(dto.getReg())%></td>
 					</tr>
 <%				
 				}
-			}else{
+			}else{	// board내에 게시글이 없는 경우
 %>
 				<tr><td colspan="5" align="center">등록된 글이 없습니다. </td></tr>
 <%
 			}
 %>
 		</table>
+	</div>
+	<br />
+	<div align="center">
+		<%-- 페이지 표시 --%>
+<%
+		if(pageNum/numOfPage>0){	//맨 처음쪽에 위치하지 않을때
+%>				
+			<a href="main.jsp?pageNum=1" class="pageNums"> 처음</a>
+			<a href="main.jsp?pageNum=<%=startNum-numOfPage%>" class="pageNums"> 이전</a>			
+<%				
+		}
+%>
+<%
+		for(int i=startPageNum; i<=endPageNum; i++){
+%>
+			<a href="main.jsp?pageNum=<%=i%>" class="pageNums">&nbsp; <%=i %> &nbsp;</a>
+<%
+		}
+%>
+<%
+		if(pageNum/(allPages-numOfPage+1)<0){	// 맨 마지막에 위치하지 않을때
+%>
+			<a href="main.jsp?pageNum=<%=endNum+numOfPage%>" class="pageNums"> 다음</a>
+			<a href="main.jsp?pageNum=<%=allPages%>" class="pageNums"> 마지막</a>	
+<%
+		}
+%>
+		<%-- 작성자/내용 검색 --%>
+		<form action="list.jsp">
+			<select name="sel">
+				<option value="null">선택하세요</option>
+				<option value="writer">작성자</option>
+				<option value="content">내용</option>
+			</select>
+			<input type="text" name="search" />
+			<input type="submit" value="검색" />
+		</form>
 	</div>
 </body>
 </html>
