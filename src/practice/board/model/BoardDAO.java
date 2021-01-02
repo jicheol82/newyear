@@ -30,13 +30,13 @@ public class BoardDAO {
 	}
 	// 총 record 갯수 반환 메서드
 	public int countRecords() {
-		int result=100;
+		int result=0;
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
 			conn = getConnection();
-			String sql = "select max(num) from board";
+			String sql = "select count(*) from board";
 			pstmt = conn.prepareStatement(sql);
 			rs = pstmt.executeQuery(); 
 			if(rs.next()) {result = rs.getInt(1);} // 아무 레코드가 없어도 여기서 rs는 null이 아니다.
@@ -142,5 +142,47 @@ public class BoardDAO {
 			close(conn, pstmt, rs);
 		}
 		return records;
+	}
+	
+	public BoardDTO callRecord(int num) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		BoardDTO dto = null;
+		try {
+			conn = getConnection();
+			// 조회수 증가
+			String sql = "update board set readcount=readcount+1 where num=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.executeUpdate();
+			// 글 가져오기
+			sql = "select * from board where num=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				if(rs.getInt("num")>0) {
+					dto = new BoardDTO();
+					dto.setNum(rs.getInt("num"));
+					dto.setWriter(rs.getString("writer"));
+					dto.setSubject(rs.getString("subject"));
+					dto.setEmail(rs.getString("email"));
+					dto.setContent(rs.getString("content"));
+					dto.setPw(rs.getString("pw"));
+					dto.setReg(rs.getTimestamp("reg"));
+					dto.setReadcount(rs.getInt("readcount"));
+					dto.setRef(rs.getInt("ref"));
+					dto.setRe_step(rs.getInt("re_step"));
+					dto.setRe_level(rs.getInt("re_level"));
+					dto.setImg(rs.getString("img"));
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			close(conn, pstmt, rs);
+		}
+		return dto;
 	}
 }
