@@ -3,6 +3,8 @@ package practice.board.model;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -82,5 +84,50 @@ public class BoardDAO {
 		}catch(Exception e) {e.printStackTrace();}
 		finally {close(conn, pstmt, rs);}
 		return result;
+	}
+	// board의 모든 글을 불러온다.
+	// List에 dto형으로 반환
+	// 정렬순서 ref열의 내림차순, ref가 동일할 시 step의 내림차수 
+	public List callAllRecords() {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		List records = new ArrayList();
+		BoardDTO dto = null;
+		int count = 0;
+		
+		try {
+			conn = getConnection();
+			// 정렬 sql
+			String sql = "select * from board order by ref desc, re_step desc";
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				if(rs.getInt("num")>0) {
+					dto = new BoardDTO();
+					dto.setNum(rs.getInt("num"));
+					dto.setWriter(rs.getString("writer"));
+					dto.setSubject(rs.getString("subject"));
+					dto.setEmail(rs.getString("email"));
+					dto.setContent(rs.getString("content"));
+					dto.setPw(rs.getString("pw"));
+					dto.setReg(rs.getTimestamp("reg"));
+					dto.setReadcount(rs.getInt("readcount"));
+					dto.setRef(rs.getInt("ref"));
+					dto.setRe_step(rs.getInt("re_step"));
+					dto.setRe_level(rs.getInt("re_level"));
+					dto.setImg(rs.getString("img"));
+					records.add(dto);
+					count++;
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			close(conn, pstmt, rs);
+		}
+		records.add(count);	// 총 글 갯수를 showList의 마지막에 반환
+		return records;
 	}
 }

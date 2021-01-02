@@ -25,7 +25,7 @@
 	// https://gunbin91.github.io/jsp/2019/05/28/jsp_11_file.html
 	
 	// MultipartRequest 객체 만들기 전 매개변수 선언
-	String path = request.getRealPath("files/");	//폴더명 뒤에 / 필요
+	String path = request.getRealPath("files/");	//폴더명 뒤에 "/" 필요
 	int max = 1024*1024*5;
 	String enc = "utf-8";
 	DefaultFileRenamePolicy dp = new DefaultFileRenamePolicy();
@@ -56,6 +56,7 @@
 				// 이름이 methodName인 method를 method[]에서 찾기
 				if(findMethod.equals(methodName)){
 					try{
+						// 찾은 method를 구현 하는 부분
 						methods[i].invoke(dto, mr.getParameter(val));
 					}catch(Exception e){e.printStackTrace();}
 					finally{break;}
