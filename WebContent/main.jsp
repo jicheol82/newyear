@@ -18,12 +18,12 @@
 	int numOfPage = 2;	// 한번에 표시할 페이지의 겟수
 	BoardDAO dao = BoardDAO.getInstance();
 	int numOfRecords = dao.countRecords();	// board DB에 있는 총 글의 갯수
-	int allPages = numOfRecords / numOfList + (numOfRecords % numOfList > 0 ? 1 : 0);	// 총 글의 갯수/한페이지에 보여줄 글의 갯수가 나누어 떨어지지 않으면 +1
+	int lastPage = numOfRecords / numOfList + (numOfRecords % numOfList > 0 ? 1 : 0);	// 총 글의 갯수/한페이지에 보여줄 글의 갯수가 나누어 떨어지지 않으면 +1
 	int pageNum = request.getParameter("pageNum")!=null ? Integer.parseInt(request.getParameter("pageNum")) : 1;	// 현재 페이지의 번호(null이면 1)
 	int startNum = numOfRecords - (numOfList*(pageNum-1));	// 한페이제 보여줄 시작글 번호
 	int endNum = (startNum - numOfList + 1)>0 ? (startNum - numOfList + 1) : 1;	// 한페이제 보여줄 마지막글의 번호(마지막 글 번호가 음수면 1)
 	int startPageNum = ((pageNum-1)/numOfPage)*numOfPage+1;	// 현재 페이지가 있는 페이지 그룹의 처음 페이지 번호
-	int endPageNum = ((allPages % pageNum) < numOfPage) ? (allPages) : (startPageNum + numOfPage -1);	// 현재 페이지 번호가 마지막쪽에 위치 하지 않으면 startPageNum + numOfPage
+	int endPageNum = ((startPageNum + numOfPage -1)>=(lastPage)) ? (lastPage) : (startPageNum + numOfPage -1);	// 현재 페이지 번호가 마지막쪽에 위치 하지 않으면 startPageNum + numOfPage
 	List records = dao.callRecords(startNum, endNum); 
 	
 	// 리스트에 표시될 게시물의 시간 양식
@@ -67,10 +67,10 @@
 	<div align="center">
 		<%-- 페이지 표시 --%>
 <%
-		if(pageNum/numOfPage>0){	//맨 처음쪽에 위치하지 않을때
+		if(startPageNum>numOfPage){	//맨 처음쪽에 위치하지 않을때
 %>				
 			<a href="main.jsp?pageNum=1" class="pageNums"> 처음</a>
-			<a href="main.jsp?pageNum=<%=startNum-numOfPage%>" class="pageNums"> 이전</a>			
+			<a href="main.jsp?pageNum=<%=startPageNum-numOfPage%>" class="pageNums"> 이전</a>			
 <%				
 		}
 %>
@@ -82,10 +82,10 @@
 		}
 %>
 <%
-		if(pageNum/(allPages-numOfPage+1)<0){	// 맨 마지막에 위치하지 않을때
+		if((startPageNum + numOfPage -1) < lastPage){	// 맨 마지막에 위치하지 않을때
 %>
-			<a href="main.jsp?pageNum=<%=endNum+numOfPage%>" class="pageNums"> 다음</a>
-			<a href="main.jsp?pageNum=<%=allPages%>" class="pageNums"> 마지막</a>	
+			<a href="main.jsp?pageNum=<%=startPageNum+numOfPage%>" class="pageNums"> 다음</a>
+			<a href="main.jsp?pageNum=<%=lastPage%>" class="pageNums"> 마지막</a>	
 <%
 		}
 %>
