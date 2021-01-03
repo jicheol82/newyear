@@ -14,23 +14,35 @@
 </head>
 <%
 	// 변수 선언부
-	int numOfList = 15;	// 한페이지에 보여줄 글 갯수
-	int numOfPage = 5;	// 한번에 표시할 페이지의 겟수
+	int numOfList = 5;	// 한페이지에 보여줄 글 갯수
+	int numOfPage = 2;	// 한번에 표시할 페이지의 겟수
+	String sel = request.getParameter("sel");
+	String search = request.getParameter("search");
 	BoardDAO dao = BoardDAO.getInstance();
-	int numOfRecords = dao.countRecords();	// board DB에 있는 총 글의 갯수
+	int numOfRecords;
+	if(sel!=null && search!=null){
+		numOfRecords = dao.countRecords(sel, search);	// board DB에 있는 조건에 맞는 글의 갯수
+	}else{
+		numOfRecords = dao.countRecords();	// board DB에 있는 총 글의 갯수
+	}
 	int lastPage = numOfRecords / numOfList + (numOfRecords % numOfList > 0 ? 1 : 0);	// 총 글의 갯수/한페이지에 보여줄 글의 갯수가 나누어 떨어지지 않으면 +1
 	int pageNum = request.getParameter("pageNum")!=null ? Integer.parseInt(request.getParameter("pageNum")) : 1;	// 현재 페이지의 번호(null이면 1)
 	int startNum = numOfRecords - (numOfList*(pageNum-1));	// 한페이제 보여줄 시작글 번호
 	int endNum = (startNum - numOfList + 1)>0 ? (startNum - numOfList + 1) : 1;	// 한페이제 보여줄 마지막글의 번호(마지막 글 번호가 음수면 1)
 	int startPageNum = ((pageNum-1)/numOfPage)*numOfPage+1;	// 현재 페이지가 있는 페이지 그룹의 처음 페이지 번호
 	int endPageNum = ((startPageNum + numOfPage -1)>=(lastPage)) ? (lastPage) : (startPageNum + numOfPage -1);	// 현재 페이지 번호가 마지막쪽에 위치 하지 않으면 startPageNum + numOfPage
-	List records = dao.callRecords(startNum, endNum); 
+	List records;
+	if(sel!=null && search!=null){
+		records = dao.callRecords(startNum, endNum, sel, search);	// board DB에 있는 조건에 맞는 글의 갯수
+	}else{
+		records = dao.callRecords(startNum, endNum);	// board DB에 있는 총 글의 갯수
+	}
 	
 	// 리스트에 표시될 게시물의 시간 양식
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm");
 %>
 <body>
-	<h1 align="center">Main</h1>
+	<h1 align="center"><a href="main.jsp">Main</a></h1>
 	<div>
 		<table>
 			<tr>
@@ -88,7 +100,7 @@
 <%
 		for(int i=startPageNum; i<=endPageNum; i++){
 %>
-			<a href="main.jsp?pageNum=<%=i%>" class="pageNums">&nbsp; <%=i %> &nbsp;</a>
+			<a href="main.jsp?pageNum=<%=i%>&sel=<%=sel%>&search=<%=search%>" class="pageNums">&nbsp; <%=i %> &nbsp;</a>
 <%
 		}
 %>

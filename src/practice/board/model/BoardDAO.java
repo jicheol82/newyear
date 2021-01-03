@@ -44,6 +44,24 @@ public class BoardDAO {
 		finally {close(conn, pstmt, rs);}
 		return result;
 	}
+	// 조건에 맞는 총 record 갯수 반환 메서드
+		public int countRecords(String sel, String search) {
+			int result = 0;
+			Connection conn = null;
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			try {
+				conn = getConnection();
+				String sql = "select count(*) from board where " + sel + " like '%" + search + "%'";
+				pstmt = conn.prepareStatement(sql);
+				rs = pstmt.executeQuery();
+				if(rs.next()) {
+					result = rs.getInt(1);
+				}
+			}catch(Exception e) {e.printStackTrace();}
+			finally {close(conn, pstmt, rs);}
+			return result;
+		}
 	
 	// writePro에서 생성된 게시글을 db에 저장
 	// db에 첫글일때, 새글작성일때, 댓글일때
@@ -106,20 +124,16 @@ public class BoardDAO {
 		finally {close(conn, pstmt, rs);}
 		return result;
 	}
-	// board의 주어진 범위 사이의 글을 불러온다.
-	// List에 dto형으로 반환
-	// 정렬순서 ref열의 내림차순, ref가 동일할 시 step의 내림차수 
+	// 전체 글 중에서 가져오기
 	public List callRecords(int startNum, int endNum) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-	
 		List records = new ArrayList();
 		BoardDTO dto = null;
-		
 		try {
 			conn = getConnection();
-			// 정렬 sql
+			// 정렬 sql 정렬순서 ref열의 내림차순, ref가 동일할 시 step의 내림차수 
 			String sql = "SELECT * FROM (SELECT rownum r, A.* FROM (SELECT * FROM board ORDER by ref asc, re_step desc)A) WHERE ?>=r AND r>=? ORDER BY r desc";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, startNum);
@@ -150,6 +164,47 @@ public class BoardDAO {
 		}
 		return records;
 	}
+	
+	// 조건에 맞는 글 중에서 불러온다.
+		public List callRecords(int startNum, int endNum, String sel, String search) {
+			Connection conn = null;
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			List records = new ArrayList();
+			BoardDTO dto = null;
+			try {
+				conn = getConnection();
+				// 정렬 sql
+				String sql = "SELECT * FROM (SELECT * FROM (SELECT rownum r, A.* FROM (SELECT * FROM board WHERE ("+sel+" like '%"+search+"%') ORDER by ref asc, re_step desc)A) ORDER BY r desc) WHERE ?>=r AND r>=?";
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setInt(1, startNum);
+				pstmt.setInt(2, endNum);
+				rs = pstmt.executeQuery();
+				while(rs.next()) {
+					if(rs.getInt("num")>0) {
+						dto = new BoardDTO();
+						dto.setNum(Integer.toString(rs.getInt("num")));
+						dto.setWriter(rs.getString("writer"));
+						dto.setSubject(rs.getString("subject"));
+						dto.setEmail(rs.getString("email"));
+						dto.setContent(rs.getString("content"));
+						dto.setPw(rs.getString("pw"));
+						dto.setReg(rs.getTimestamp("reg"));
+						dto.setReadcount(Integer.toString(rs.getInt("readcount")));
+						dto.setRef(Integer.toString(rs.getInt("ref")));
+						dto.setRe_step(Integer.toString(rs.getInt("re_step")));
+						dto.setRe_level(Integer.toString(rs.getInt("re_level")));
+						dto.setImg(rs.getString("img"));
+						records.add(dto);
+					}
+				}
+			}catch(Exception e) {
+				e.printStackTrace();
+			}finally {
+				close(conn, pstmt, rs);
+			}
+			return records;
+		}
 	
 	public BoardDTO callRecord(int num) {
 		Connection conn = null;
