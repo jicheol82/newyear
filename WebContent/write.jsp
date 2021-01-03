@@ -7,32 +7,17 @@
 	<title>Write Form</title>
 	<link href="./css/style.css" rel="stylesheet" type="text/css" />
 </head>
-<%
-	String strReferer = request.getParameter("referer");
-	if(strReferer==null){
-%>
-<%-- 		<script>
-			alert("비정상적인 접근입니다.");
-			history.go(-1);
-		</script>	--%>
-<%
-	}
-%>
-<%
-	// 임시 변수 선언, main 완성되면 바꿀것
-	String pageNum = "1";
-%>
 <body>
 <br />
 	<h1 align="center"> Write Article </h1>
-	<form action="writePro.jsp?pageNum=<%=pageNum%>" method="post" enctype="multipart/form-data">
+	<form action="writePro.jsp?pageNum=<%=request.getParameter("pageNum")%>" method="post" enctype="multipart/form-data">
 		<%-- 숨겨서 글 속성 전송 --%>
-		<%-- 
-		<input type="hidden" name="num" value="<%=num %>" />
-		<input type="hidden" name="ref" value="<%=ref %>" />
-		<input type="hidden" name="re_step" value="<%=re_step %>" />
-		<input type="hidden" name="re_level" value="<%=re_level %>" />
-		--%>
+		
+		<input type="hidden" name="num" value="<%=request.getParameter("num")%>" />
+		<input type="hidden" name="ref" value="<%=request.getParameter("ref")%>" />
+		<input type="hidden" name="re_step" value="<%=request.getParameter("re_step")%>" />
+		<input type="hidden" name="re_level" value="<%=request.getParameter("re_level")%>" />
+
 		<table>
 			<tr>
 				<td> 작성자 </td>
@@ -62,7 +47,7 @@
 				<td colspan="2">
 					<input type="submit" value="저장"/> 
 					<input type="reset" value="재작성"/>
-					<input type="button" value="리스트 보기" onclick="location='list.jsp?pageNum=<%=pageNum%>'"/>
+					<input type="button" value="리스트 보기" onclick="location='main.jsp?pageNum=<%=request.getParameter("pageNum")%>'"/>
 				</td>
 			</tr>
 		</table>

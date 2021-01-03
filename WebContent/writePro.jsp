@@ -41,10 +41,8 @@
 	// parameter name을 이용하여 dao에 value 넣기
 	while(enu.hasMoreElements()){
 		String val = (String)enu.nextElement();
-		//System.out.println(val);
 		// Functions의 upperCaseFirst메서드를 이용하여 dao에 사용할 메서드명 생성
 		String methodName = "set"+Functions.upperCaseFirst(val);
-		//System.out.println(methodName);
 		try{
 			// java.lang.Class의 forName()메서드를 통해 클래스 찾기
 			Class targetClass = Class.forName("practice.board.model.BoardDTO");
@@ -57,6 +55,7 @@
 				if(findMethod.equals(methodName)){
 					try{
 						// 찾은 method를 구현 하는 부분
+						// 파라메타를 지금은 String(mr.getParameter())로 밖에 못보냄
 						methods[i].invoke(dto, mr.getParameter(val));
 					}catch(Exception e){e.printStackTrace();}
 					finally{break;}
@@ -70,7 +69,8 @@
 	dto.setImg(mr.getFilesystemName("attach"));
 	BoardDAO dao = BoardDAO.getInstance();
 	dao.uploadContent(dto);	
-	response.sendRedirect("main.jsp");
+	String pageNum = request.getParameter("pageNum")!=null ? "1" : request.getParameter("pageNum") ;
+	response.sendRedirect("main.jsp?pageNum="+pageNum);
 %>
 <%-- 
 <jsp:useBean id="dto" class="practice.board.model.BoardDTO"/>

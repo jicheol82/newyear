@@ -4,30 +4,29 @@ import java.sql.Timestamp;
 
 public class BoardDTO {
 	// num은 db에 자동 생성되나 처리를 위해서 받아올 때도 있으니 일단 생성
-	private Integer num;
+	private String num;
 	private String writer;
 	private String subject;
 	private String email;
 	private String content;
 	private String pw;
 	private Timestamp reg;
-	private Integer readcount;
-	private Integer ref;
-	private Integer re_step;
-	private Integer re_level;
-	// 파일 주소도 dto에 만들어야 하나?
+	private String readcount;
+	private String ref;
+	private String re_step;
+	private String re_level;
 	private String img;
-	
+	// 파일 주소도 dto에 만들어야 하나?
 	public String getImg() {
 		return img;
 	}
 	public void setImg(String img) {
 		this.img = img;
 	}
-	public Integer getNum() {
+	public String getNum() {
 		return num;
 	}
-	public void setNum(Integer num) {
+	public void setNum(String num) {
 		this.num = num;
 	}
 	public String getWriter() {
@@ -66,29 +65,28 @@ public class BoardDTO {
 	public void setReg(Timestamp reg) {
 		this.reg = reg;
 	}
-	public Integer getReadcount() {
+	public String getReadcount() {
 		return readcount;
 	}
-	public void setReadcount(Integer readcount) {
+	public void setReadcount(String readcount) {
 		this.readcount = readcount;
 	}
-	public Integer getRef() {
+	public String getRef() {
 		return ref;
 	}
-	public void setRef(Integer ref) {
+	public void setRef(String ref) {
 		this.ref = ref;
 	}
-	public Integer getRe_step() {
+	public String getRe_step() {
 		return re_step;
 	}
-	public void setRe_step(Integer re_step) {
+	public void setRe_step(String re_step) {
 		this.re_step = re_step;
 	}
-	public Integer getRe_level() {
+	public String getRe_level() {
 		return re_level;
 	}
-	public void setRe_level(Integer re_level) {
+	public void setRe_level(String re_level) {
 		this.re_level = re_level;
 	}
-	
 }

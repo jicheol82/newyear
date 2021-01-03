@@ -14,8 +14,8 @@
 </head>
 <%
 	// 변수 선언부
-	int numOfList = 5;	// 한페이지에 보여줄 글 갯수
-	int numOfPage = 3;	// 한번에 표시할 페이지의 겟수
+	int numOfList = 15;	// 한페이지에 보여줄 글 갯수
+	int numOfPage = 5;	// 한번에 표시할 페이지의 겟수
 	BoardDAO dao = BoardDAO.getInstance();
 	int numOfRecords = dao.countRecords();	// board DB에 있는 총 글의 갯수
 	int lastPage = numOfRecords / numOfList + (numOfRecords % numOfList > 0 ? 1 : 0);	// 총 글의 갯수/한페이지에 보여줄 글의 갯수가 나누어 떨어지지 않으면 +1
@@ -49,7 +49,18 @@
 					<tr>
 						<td><%=startNum%></td>
 						<td><a href="mailto:<%=dto.getEmail()%>"><%=dto.getWriter()%></a></td>
-						<td><a href="view.jsp?num=<%=dto.getNum()%>&pageNum=<%=pageNum%>" ><%=dto.getSubject()%></a></td>
+						<td align="left"><a href="view.jsp?num=<%=dto.getNum()%>&pageNum=<%=pageNum%>" >
+<%							
+							int wid = Integer.parseInt(dto.getRe_level());
+							if(wid>0){
+%>
+							<img src="img/tabImg.PNG" width="<%=wid*8%>" />
+							<img src="img/replyImg.png" width="10" />
+<%
+							}
+%>
+						<%=dto.getSubject()%>
+						</a></td>
 						<td><%=dto.getReadcount()%></td>
 						<td><%=sdf.format(dto.getReg())%></td>
 					</tr>
@@ -90,7 +101,7 @@
 		}
 %>
 		<%-- 작성자/내용 검색 --%>
-		<form action="list.jsp">
+		<form action="main.jsp">
 			<select name="sel">
 				<option value="null">선택하세요</option>
 				<option value="writer">작성자</option>

@@ -12,9 +12,8 @@
 </head>
 <% 
 	String pageNum = request.getParameter("pageNum");
-	int num = Integer.parseInt(request.getParameter("num"));
 	BoardDAO dao = BoardDAO.getInstance();
-	BoardDTO dto = dao.callRecord(num);
+	BoardDTO dto = dao.callRecord(Integer.parseInt(request.getParameter("num")));
 	SimpleDateFormat sdf = new SimpleDateFormat();
 %>
 <%-- 답글 --%>
@@ -23,14 +22,14 @@
 <body>
 	<%-- 글 보여주기 --%>
 	<br />
-	<h1 align="center"> Write dto </h1>
+	<h1 align="center"> Article </h1>
 		<%-- 숨겨서 글 속성 전송 --%>
-		<%-- 
-		<input type="hidden" name="num" value="<%=num %>" />
-		<input type="hidden" name="ref" value="<%=ref %>" />
-		<input type="hidden" name="re_step" value="<%=re_step %>" />
-		<input type="hidden" name="re_level" value="<%=re_level %>" />
-		--%>
+		
+		<input type="hidden" name="num" value="<%=request.getParameter("num")%>" />
+		<input type="hidden" name="ref" value="<%=request.getParameter("ref")%>" />
+		<input type="hidden" name="re_step" value="<%=request.getParameter("re_step")%>" />
+		<input type="hidden" name="re_level" value="<%=request.getParameter("re_level")%>" />
+		
 		<table>
 			<tr>
 				<td colspan="2"><b><%=dto.getSubject() %></b></td>

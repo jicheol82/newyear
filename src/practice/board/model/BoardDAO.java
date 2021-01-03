@@ -66,14 +66,21 @@ public class BoardDAO {
 			rs.next(); // max값이 null이어도 rs.next()는 true로 나오므로 한번 소비
 			if(rs.getInt(1)>0) {	// 새글 또는 댓글
 				num = rs.getInt(1)+1; 
-				if(dto.getRef()==null) { //새글일때
+				if(dto.getRef().equals("null")) { //새글일때
 					ref = num;	// 새글일때는 ref와 Num은 일치
 					re_step = 0;
 					re_level = 0;
 				}else { //댓글일때
-					ref = dto.getRef();	// 댓글은 읽은 글의 ref와 동일
-					re_step = dto.getRe_step() + 1;	//읽은 글의 step의 밑 단계로 끼어들기
-					re_level = dto.getRe_level() + 1;	//읽은 글의 level에서 한단계 들여쓰기(가 댓글)
+					ref = Integer.parseInt(dto.getRef());	// 댓글은 읽은 글의 ref와 동일
+					re_step = Integer.parseInt(dto.getRe_step()) + 1;	//읽은 글의 step의 밑 단계로 끼어들기
+					// 그 이후의 re_step값들 +1하기
+					// re_step 증가시키기
+					sql = "update board set re_step=re_step+1 where ref=? and re_step>=?";
+					pstmt = conn.prepareStatement(sql);
+					pstmt.setInt(1, ref);
+					pstmt.setInt(2, re_step);
+					pstmt.executeUpdate();
+					re_level = Integer.parseInt(dto.getRe_level()) + 1;	//읽은 글의 level에서 한단계 들여쓰기(가 댓글)
 				}
 			}else { // 첫글
 				num = 1;
@@ -106,14 +113,14 @@ public class BoardDAO {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		
+	
 		List records = new ArrayList();
 		BoardDTO dto = null;
 		
 		try {
 			conn = getConnection();
 			// 정렬 sql
-			String sql = "select * from board where ? >= num and num >= ? order by ref desc, re_step desc";
+			String sql = "SELECT * FROM (SELECT rownum r, A.* FROM (SELECT * FROM board ORDER by ref asc, re_step desc)A) WHERE ?>=r AND r>=? ORDER BY r desc";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, startNum);
 			pstmt.setInt(2, endNum);
@@ -121,17 +128,17 @@ public class BoardDAO {
 			while(rs.next()) {
 				if(rs.getInt("num")>0) {
 					dto = new BoardDTO();
-					dto.setNum(rs.getInt("num"));
+					dto.setNum(Integer.toString(rs.getInt("num")));
 					dto.setWriter(rs.getString("writer"));
 					dto.setSubject(rs.getString("subject"));
 					dto.setEmail(rs.getString("email"));
 					dto.setContent(rs.getString("content"));
 					dto.setPw(rs.getString("pw"));
 					dto.setReg(rs.getTimestamp("reg"));
-					dto.setReadcount(rs.getInt("readcount"));
-					dto.setRef(rs.getInt("ref"));
-					dto.setRe_step(rs.getInt("re_step"));
-					dto.setRe_level(rs.getInt("re_level"));
+					dto.setReadcount(Integer.toString(rs.getInt("readcount")));
+					dto.setRef(Integer.toString(rs.getInt("ref")));
+					dto.setRe_step(Integer.toString(rs.getInt("re_step")));
+					dto.setRe_level(Integer.toString(rs.getInt("re_level")));
 					dto.setImg(rs.getString("img"));
 					records.add(dto);
 				}
@@ -164,17 +171,17 @@ public class BoardDAO {
 			while(rs.next()) {
 				if(rs.getInt("num")>0) {
 					dto = new BoardDTO();
-					dto.setNum(rs.getInt("num"));
+					dto.setNum(Integer.toString(rs.getInt("num")));
 					dto.setWriter(rs.getString("writer"));
 					dto.setSubject(rs.getString("subject"));
 					dto.setEmail(rs.getString("email"));
 					dto.setContent(rs.getString("content"));
 					dto.setPw(rs.getString("pw"));
 					dto.setReg(rs.getTimestamp("reg"));
-					dto.setReadcount(rs.getInt("readcount"));
-					dto.setRef(rs.getInt("ref"));
-					dto.setRe_step(rs.getInt("re_step"));
-					dto.setRe_level(rs.getInt("re_level"));
+					dto.setReadcount(Integer.toString(rs.getInt("readcount")));
+					dto.setRef(Integer.toString(rs.getInt("ref")));
+					dto.setRe_step(Integer.toString(rs.getInt("re_step")));
+					dto.setRe_level(Integer.toString(rs.getInt("re_level")));
 					dto.setImg(rs.getString("img"));
 				}
 			}
