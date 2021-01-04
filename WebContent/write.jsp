@@ -7,6 +7,18 @@
 	<title>Write Form</title>
 	<link href="./css/style.css" rel="stylesheet" type="text/css" />
 </head>
+<%
+	String loggedin = request.getParameter("loggedin");
+	System.out.println(loggedin);
+	if(loggedin.equals("false")){
+%>
+		<script>
+			alert("로그인 후 이용해 주세요.");
+			window.location="/practice/main.jsp";
+		</script>
+<%	
+	}
+%>
 <body>
 <br />
 	<h1 align="center"> Write Article </h1>
@@ -21,7 +33,7 @@
 		<table>
 			<tr>
 				<td> 작성자 </td>
-				<td align="left"> <input type="text" name="writer"/> </td>
+				<td align="left"> <%=session.getAttribute("userId")%> <input type="hidden" name="writer" value="<%=session.getAttribute("userId")%>"/> </td>
 			</tr>
 			<tr>
 				<td> 제목 </td>

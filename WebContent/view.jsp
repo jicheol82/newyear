@@ -11,6 +11,7 @@
 	<link href="./css/style.css" rel="stylesheet" type="text/css" />
 </head>
 <% 
+	Boolean loggedin = session.getAttribute("userId")!=null;
 	String pageNum = request.getParameter("pageNum");
 	BoardDAO dao = BoardDAO.getInstance();
 	BoardDTO dto = dao.callRecord(Integer.parseInt(request.getParameter("num")));
@@ -24,18 +25,20 @@
 	<br />
 	<h1 align="center"> Article </h1>
 		<%-- 숨겨서 글 속성 전송 --%>
-		
+		<%--
 		<input type="hidden" name="num" value="<%=request.getParameter("num")%>" />
 		<input type="hidden" name="ref" value="<%=request.getParameter("ref")%>" />
 		<input type="hidden" name="re_step" value="<%=request.getParameter("re_step")%>" />
 		<input type="hidden" name="re_level" value="<%=request.getParameter("re_level")%>" />
-		
+		<input type="hidden" name="loggedin" value="<%=loggedin%>"/>
+		 --%>
 		<table>
 			<tr>
 				<td colspan="2"><b><%=dto.getSubject() %></b></td>
 			</tr>
 			<tr>
-				<td colspan="2"><%=dto.getContent() %></td>
+				<td colspan="2" align="left"><%=dto.getContent() %><br/>
+				<img src="/practice/files/<%=dto.getImg()%>"/></td>
 			</tr>
 			<tr>
 				<td>posted by <a href="mail:to<%=dto.getEmail()%>"><b><%=dto.getWriter() %></b></a> at <%=sdf.format(dto.getReg()) %></td>
@@ -43,9 +46,9 @@
 			</tr>
 			<tr>
 				<td colspan="2">
-					<button onclick="location='modifyForm.jsp?num=<%=dto.getNum()%>&pageNum=<%=pageNum%>'">수정</button>
-					<button onclick="location='deleteForm.jsp?num=<%=dto.getNum()%>&pageNum=<%=pageNum%>'">삭제</button>
-					<button onclick="location='write.jsp?num=<%=dto.getNum()%>&ref=<%=dto.getRef()%>&re_level=<%=dto.getRe_level()%>&re_step=<%=dto.getRe_step()%>&pageNum=<%=pageNum%>'">답글</button>
+					<button onclick="location='modify.jsp?num=<%=dto.getNum()%>&pageNum=<%=pageNum%>'">수정</button>
+					<button onclick="location='delete.jsp?num=<%=dto.getNum()%>&pageNum=<%=pageNum%>'">삭제</button>
+					<button onclick="location='write.jsp?num=<%=dto.getNum()%>&ref=<%=dto.getRef()%>&re_level=<%=dto.getRe_level()%>&re_step=<%=dto.getRe_step()%>&pageNum=<%=pageNum%>&loggedin=<%=loggedin%>'">답글</button>
 					<button onclick="location='main.jsp?pageNum=<%=pageNum%>'">리스트</button>
 				</td>
 				

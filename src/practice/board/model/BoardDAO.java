@@ -247,4 +247,81 @@ public class BoardDAO {
 		}
 		return dto;
 	}
+	
+	public BoardDTO getArticle(int num) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		BoardDTO dto = null;
+		try {
+			conn = getConnection();
+			// 글 가져오기
+			String sql = "select * from board where num=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				if(rs.getInt("num")>0) {
+					dto = new BoardDTO();
+					dto.setNum(Integer.toString(rs.getInt("num")));
+					dto.setWriter(rs.getString("writer"));
+					dto.setSubject(rs.getString("subject"));
+					dto.setEmail(rs.getString("email"));
+					dto.setContent(rs.getString("content"));
+					dto.setPw(rs.getString("pw"));
+					dto.setReg(rs.getTimestamp("reg"));
+					dto.setReadcount(Integer.toString(rs.getInt("readcount")));
+					dto.setRef(Integer.toString(rs.getInt("ref")));
+					dto.setRe_step(Integer.toString(rs.getInt("re_step")));
+					dto.setRe_level(Integer.toString(rs.getInt("re_level")));
+					dto.setImg(rs.getString("img"));
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			close(conn, pstmt, rs);
+		}
+		return dto;
+	}
+	public boolean updateArticle(BoardDTO dto) {
+		boolean result = false;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		try {
+			conn = getConnection();
+			String sql = "update board set email=?, content=?, img=? where num=? and pw=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, dto.getEmail());
+			pstmt.setString(2, dto.getContent());
+			pstmt.setString(3, dto.getImg());
+			pstmt.setInt(4, Integer.parseInt(dto.getNum()));
+			pstmt.setString(5, dto.getPw());
+			int res = pstmt.executeUpdate();
+			if(res>0) { result = true; }
+		}catch(Exception e) { e.printStackTrace(); }
+		finally { close(conn, pstmt, null); }
+		return result;
+	}
+	
+	public boolean deleteArticle(int num, String pw) {
+		boolean result = false;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		try {
+			conn = getConnection();
+			String sql = "delete from board where num=? and pw=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, num);
+			pstmt.setString(2, pw);
+			int res = pstmt.executeUpdate();
+			if(res>0) {
+				result = true;
+			}
+		}catch(Exception e) {e.printStackTrace();}
+		finally {close(conn, pstmt, null);}
+		return result;
+	}
 }
+	
+	
